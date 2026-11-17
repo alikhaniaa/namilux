@@ -1,0 +1,215 @@
+@import "tailwindcss";
+@import "@namilux/tokens/tokens.css";
+@import "./fonts.css";
+/* Imported unlayered and last, so a recipe WINS over a stray utility - the spec is explicit
+   that this is the point of having recipes at all ("use them so a stray utility cannot
+   override a system value", the v2 §6.1 lesson). The consequence is that a plate's aspect
+   ratio cannot be changed with `aspect-*`; the system provides `.plate--wide` / `.plate--ultra`
+   for the two other framings the design uses. */
+@import "./components.css";
+@import "./account.css";
+
+/* Tailwind v4 scans the sources it can see from this file; the app tree is one package up. */
+@source "../";
+
+/* -  -  - tokens → Tailwind utilities (inline: the utilities resolve to the live var(), so the
+   html.dark flip in tokens.css keeps working without a second utility set) -  -  - */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-soft: var(--bg-soft);
+  --color-plate: var(--plate);
+
+  --color-frame: var(--frame);
+  --color-frame-ink: var(--frame-ink);
+  --color-frame-ink-2: var(--frame-ink-2);
+  --color-frame-line: var(--frame-line);
+  --color-frame-accent: var(--frame-accent);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-line-input: var(--line-input);
+  --color-line-strong: var(--line-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --color-plate-ink: var(--plate-ink);
+  --color-plate-ink-2: var(--plate-ink-2);
+  --color-plate-chip: var(--plate-chip);
+
+  --font-sans: var(--font-estedad), "Vazirmatn Fallback", "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  /* UI v4: the Latin display serif (Instrument Serif via next/font/local) - editorial Latin runs only. */
+  --font-serif: var(--font-instrument), Georgia, "Times New Roman", serif;
+
+  --spacing-1: var(--s-1);
+  --spacing-2: var(--s-2);
+  --spacing-3: var(--s-3);
+  --spacing-4: var(--s-4);
+  --spacing-5: var(--s-5);
+  --spacing-6: var(--s-6);
+  --spacing-7: var(--s-7);
+  --spacing-8: var(--s-8);
+  --spacing-9: var(--s-9);
+  --spacing-10: var(--s-10);
+  --spacing-11: var(--s-11);
+
+  --radius-0: var(--r-0);
+  --radius-none: var(--r-0);
+  --radius-pill: var(--r-pill);
+  --radius-full: var(--r-pill);
+
+  --shadow-sheet: var(--shadow-sheet);
+  --shadow-pop: var(--shadow-pop);
+
+  --ease-out: var(--e-out);
+  --ease-inout: var(--e-inout);
+  --ease-enter: var(--e-enter);
+
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/*
+ * tokens.css rules: "apps/web sets `--font-sans: var(--font-estedad), …` on `html` via
+ * next/font/local". This rule is deliberately UNLAYERED and after the imports: tokens.css declares
+ * its own `--font-sans` on `:root` outside any layer, and an unlayered declaration outranks
+ * everything in `@layer base` - so the same line inside the base layer lost. It also has to use
+ * `:root` rather than `html`: `:root` is one specificity class higher, so `html` lost too. Same
+ * selector, later source order, mine wins. Verified in the browser.
+ */
+:root {
+  --font-sans: var(--font-estedad), "Vazirmatn Fallback", "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, "Times New Roman", serif;
+}
+
+/* Hover only where hovering is real - a tap must never leave a stuck hover state.
+   The block form with @slot is the only one that can wrap the variant in a media query; the
+   one-line shorthand emits `@media … { &:hover }` with no body and fails to parse. */
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
+@layer base {
+  html {
+    overflow-x: clip;
+    /* tokens.css sets `color-scheme` per theme; the pair here is the pre-flip default. */
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+    /* The streamed sections below the fold arrive after first paint; without a reserved gutter the
+       classic desktop scrollbar appears late and shifts the whole page by its width (measured
+       CLS 0.012 on Windows Chrome). Overlay-scrollbar platforms are unaffected. */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15.5px;
+    font-weight: 400;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Installed PWA: no pull-to-refresh on a shop. */
+  html[data-standalone] {
+    overscroll-behavior-y: none;
+  }
+
+  /* The single focus style of the system; --focus is context-scoped in tokens.css. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+  }
+
+  /* Persian never letter-spaces or uppercases; headings inherit the body face. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: inherit;
+    font-size: inherit;
+    text-wrap: balance;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Native controls follow the theme and the system face. */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Invoice print view: on paper only the invoice exists - the shell, tabs and
+   account chrome are hidden and the sheet is pinned to the page's start edge. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .invoice-print,
+  .invoice-print * {
+    visibility: visible;
+  }
+  .invoice-print {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0;
+    inline-size: 100%;
+  }
+  .invoice-print__actions {
+    display: none;
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "@namilux/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Namilux design tokens v3: tokens.css + tokens.json, the contrast gate, the vendored Estedad/Vazirmatn fonts and the icon/font build scripts.",
+  "type": "module",
+  "sideEffects": [
+    "./tokens.css"
+  ],
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./tokens.json": "./tokens.json",
+    "./contrast-check": "./contrast-check.mjs",
+    "./fonts/*": "./fonts/*"
+  },
+  "files": [
+    "tokens.css",
+    "tokens.json",
+    "contrast-check.mjs",
+    "fonts/*.woff2",
+    "fonts/*.txt",
+    "fonts/README.md",
+    "scripts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node contrast-check.mjs --quiet",
+    "check:contrast": "node contrast-check.mjs",
+    "fonts:subset": "node scripts/subset-fonts.mjs",
+    "icons": "node scripts/make-owner-brand.mjs && node scripts/make-admin-icons.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "icons:admin": "node scripts/make-admin-icons.mjs"
+  },
+  "devDependencies": {
+    "@namilux/config": "workspace:*",
+    "@types/node": "24.13.3",
+    "eslint": "9.39.5",
+    "sharp": "0.35.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

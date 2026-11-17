@@ -1,0 +1,11 @@
+[Unit]
+Description=NAMILUX watchdog every minute
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=60s
+AccuracySec=5s
+Unit=namilux-watchdog.service
+
+[Install]
+WantedBy=timers.target

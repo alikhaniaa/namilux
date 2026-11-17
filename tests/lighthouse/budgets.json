@@ -1,0 +1,6 @@
+[
+  { "path": "/", "timings": [{ "metric": "largest-contentful-paint", "budget": 2000 }, { "metric": "cumulative-layout-shift", "budget": 0 }], "resourceSizes": [{ "resourceType": "script", "budget": 190 }] },
+  { "path": "/shop/", "timings": [{ "metric": "largest-contentful-paint", "budget": 2000 }, { "metric": "cumulative-layout-shift", "budget": 0 }], "resourceSizes": [{ "resourceType": "script", "budget": 200 }] },
+  { "path": "/product/*", "timings": [{ "metric": "largest-contentful-paint", "budget": 2000 }, { "metric": "cumulative-layout-shift", "budget": 0 }], "resourceSizes": [{ "resourceType": "script", "budget": 220 }] },
+  { "path": "/billing/", "timings": [{ "metric": "largest-contentful-paint", "budget": 2200 }, { "metric": "cumulative-layout-shift", "budget": 0 }], "resourceSizes": [{ "resourceType": "script", "budget": 240 }] }
+]

@@ -1,0 +1,40 @@
+node_modules/
+.next/
+.next-*/
+out/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env.*
+!.env.example
+.media/
+data/extract/05_media/files/
+_legacy/namilux-v1/node_modules/
+_legacy/namilux-v1/.next/
+_legacy/namilux-v1/data/
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+tests/test-results/
+tests/playwright-report/
+*.log
+.DS_Store
+Thumbs.db
+
+# local credentials and generated runtime state - never commit
+KEYS/
+# The mock SMS driver writes its outbox beside whichever app ran it (registry.ts:
+# `join(MEDIA_DIR, "..", ".sms-outbox.jsonl")`), so the rule cannot name one directory - 
+# apps/worker/.sms-outbox.jsonl reached a commit, carrying seeded phone numbers and message
+# bodies, while only packages/seed's copy was ignored.
+.sms-outbox.jsonl
+packages/tokens/fonts/.build/
+apps/web/public/media/
+apps/admin/public/media/
+
+# media / binary reference assets - never committed
+data/extract/04_catalog/products/*/images/
+_legacy/namilux-v1/public/images/
+

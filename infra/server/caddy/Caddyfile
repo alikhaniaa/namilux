@@ -1,0 +1,157 @@
+#
+# WHAT
+#   The production edge for the native layout (infra/server/README.md): TLS from Let's Encrypt for the
+#   apex + www + admin hostnames, HTTP/3, static /media from disk, everything else to the two Next
+#   standalone servers on loopback. Environment comes from /etc/caddy/namilux.env (provision.sh):
+#     SITE_HOST=namilux.ir  ADMIN_HOST=admin.namilux.ir  ADMIN_ALLOWED_CIDRS="1.2.3.4/32 5.6.7.0/24"
+#     CDN_TRUSTED_RANGES=private_ranges   (→ the ArvanCloud ranges when the CDN fronts the origin)
+#     ACME_EMAIL=ops@namilux.ir
+#
+# RULES
+#   - X-Forwarded-For / X-Real-IP are OVERWRITTEN with {client_ip} - never appended. The apps read the
+#     last hop (@namilux/config/client-ip); with this file the last hop and the only hop agree, and a
+#     client cannot smuggle an address past the rate limits or the admin allow-list.
+#   - An unknown IP on the admin hostname gets a bare 404 (never 403 - nothing to learn).
+#   - /api/internal/* is answered 404 at the edge; the apps call it over loopback.
+#   - The service worker is never cached at the edge; /media is immutable (content-hashed names).
+#   - Extra vhosts are dropped into /etc/caddy/sites/*.caddy (imported at the bottom) instead of being
+#     edited into this file, so cutover.sh can reinstall it without losing them.
+
+{
+	email {$ACME_EMAIL:ops@namilux.ir}
+	servers {
+		protocols h1 h2 h3
+		trusted_proxies static {$CDN_TRUSTED_RANGES:private_ranges}
+		client_ip_headers X-Forwarded-For Ar-Real-Ip
+		# slow-client limits: a connection that trickles its headers or body is dropped here, before
+		# it can hold a Node request open (the write timeout is long for phones on slow networks)
+		timeouts {
+			read_header 10s
+			read_body 30s
+			write 5m
+			idle 5m
+		}
+	}
+}
+
+(security) {
+	@sensitive path /.env /.env.* /.git /.git/* /KEYS /KEYS/*
+	handle @sensitive {
+		respond 404
+	}
+	header {
+		-Server
+		-X-Powered-By
+	}
+}
+
+(upstream) {
+	header_up X-Forwarded-For {client_ip}
+	header_up X-Real-IP {client_ip}
+	header_up X-Forwarded-Proto {scheme}
+	header_up X-Forwarded-Host {host}
+	transport http {
+		read_timeout 60s
+		dial_timeout 5s
+	}
+}
+
+# -  -  - storefront -  -  - 
+{$SITE_HOST} {
+	encode zstd gzip
+	import security
+	# the largest legitimate storefront body is a few KB of JSON; anything bigger is refused at the edge
+	request_body {
+		max_size 1MB
+	}
+
+	@internal path /api/internal/*
+	handle @internal {
+		respond 404
+	}
+
+	handle_path /media/* {
+		root * /opt/namilux/media
+		header Cache-Control "public, max-age=31536000, immutable"
+		header X-Content-Type-Options nosniff
+		file_server
+	}
+
+	handle /sw.js {
+		header Cache-Control "no-cache, must-revalidate"
+		header Service-Worker-Allowed "/"
+		reverse_proxy 127.0.0.1:3000 {
+			import upstream
+		}
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000 {
+			import upstream
+			health_uri /healthz/
+			health_headers {
+				Host {$SITE_HOST}
+				X-Forwarded-Host {$SITE_HOST}
+				X-Forwarded-Proto https
+			}
+			health_interval 15s
+			health_timeout 5s
+			lb_try_duration 5s
+		}
+	}
+
+	log {
+		output file /var/log/caddy/site.log {
+			roll_size 50mb
+			roll_keep 10
+		}
+		format json
+	}
+}
+
+www.{$SITE_HOST} {
+	redir https://{$SITE_HOST}{uri} permanent
+}
+
+# -  -  - admin (allow-list; unknown IP → 404, never 403) -  -  - 
+{$ADMIN_HOST} {
+	encode zstd gzip
+	import security
+	# media uploads (25 MB app cap) plus multipart overhead
+	request_body {
+		max_size 30MB
+	}
+
+	@blocked not client_ip {$ADMIN_ALLOWED_CIDRS:0.0.0.0/0 ::/0}
+	handle @blocked {
+		respond 404
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3100 {
+			import upstream
+			health_uri /healthz
+			health_headers {
+				X-Forwarded-Proto https
+			}
+			health_interval 15s
+			health_timeout 5s
+		}
+	}
+
+	header X-Robots-Tag "noindex, nofollow"
+
+	log {
+		output file /var/log/caddy/admin.log {
+			roll_size 20mb
+			roll_keep 10
+		}
+		format json
+	}
+}
+
+# -  -  - optional extra vhosts -  -  - 
+# Deployment-specific redirects or virtual hosts can be placed in /etc/caddy/sites/*.caddy. A glob that
+# matches nothing is not an error, so this line is safe on a box that has no such site; the directory
+# itself is created by provision.sh.
+import /etc/caddy/sites/*.caddy

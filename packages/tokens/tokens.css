@@ -1,0 +1,59 @@
+:root {
+  /* grounds */
+  --bg:           #F6F4EF;  /* warm porcelain - the wall (UI v4) */
+  --surface:      #FFFEFB;  /* cards, sheets, checkout panel - the vitrine glass */
+  --bg-soft:      #EDEAE3;  /* strips, zebra rows, wells */
+  --plate:        #E2DDD4;  /* warm stone - product ground; 1.23:1 against --bg so a tile exists as a region */
+  /* frame (header, footer, chapters) - same in both themes */
+  --frame:        #15181A;  --frame-ink: #F3F4F2;  --frame-ink-2: #A7ADB1;  --frame-line: #2A2F33;
+  /* ink */
+  --ink:          #15181A;  /* 16.5:1 */
+  --ink-2:        #4F565B;  /*  6.9:1 */
+  --ink-3:        #5F676D;  /*  5.3:1 - struck price, captions, counts */
+  --ink-4:        #9AA1A6;  /* decorative only, never text */
+  /* lines */
+  --line:         #E1DCD3;  --line-2: #C9C2B7;  --line-input: #7C8287; /* 3.2:1 on bg-soft (1.4.11) */  --line-strong: #15181A;
+  /* the one accent - فیروزه */
+  --accent:       #11707A;  /* CTA fill, active indicator, focus ring, brand mark; 5.4:1 as text on --bg */
+  --accent-hover: #0C5A62;
+  --accent-ink:   #FFFFFF;  /* text on accent 5.8:1 */
+  --accent-soft:  #DDEFF0;  /* selected chip ground; accent text on it 4.9:1 */
+  --frame-accent: #5FC8CE;  /* the accent when drawn on the graphite frame 9.0:1 */
+  /* UI v4 - the bronze eyebrow: small Latin labels, ordinals, hairline ornaments. Never a fill, never body text. */
+  --gilt:         #7F6234;  /* 5.2:1 as text on --bg, 4.7:1 on --bg-soft */
+  --frame-gilt:   #D6BC8C;  /* the same voice on graphite 9.7:1 */
+  /* state - desaturated, always paired with a text label */
+  --ok: #2E6B3F;  --ok-soft: #E3EFE6;   --warn: #8A5A16; --warn-soft: #F6EBD8;   --danger: #A3352B; --danger-soft: #F7E3E0;
+  /* plate island - identical in both themes */
+  --plate-ink: #15181A;  --plate-ink-2: #4F565B;  --plate-chip: #FFFFFF;
+  --focus: var(--accent);
+  /* shape, elevation, motion */
+  --r-0: 0;  --r-pill: 999px;
+  /* 3 Sep 2026 - owner override ("ignore the specs, softer corners"): the tile language. */
+  --r-ctl: 10px;  --r-tile: 16px;  --r-tile-lg: 22px;
+  --shadow-tile: 0 1px 2px rgb(21 24 26 / .04), 0 14px 36px -18px rgb(21 24 26 / .16);
+  --shadow-sheet: 0 -8px 40px rgb(21 24 26 / .14);  --shadow-pop: 0 6px 24px rgb(21 24 26 / .14);  --shadow-lift: 0 1px 2px rgb(21 24 26 / .05), 0 18px 40px -20px rgb(21 24 26 / .18);
+  --e-out: cubic-bezier(.22,.61,.36,1);  --e-inout: cubic-bezier(.65,0,.35,1);  --e-enter: cubic-bezier(.16,1,.3,1);
+  --t-micro: 100ms; --t-fast: 180ms; --t-base: 260ms; --t-slow: 420ms; --t-page: 600ms;
+  /* spacing */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px; --s-11: 160px;
+  /* additions (see rules): the spec stack; apps/web overrides --font-sans with the next/font variable */
+  --font-sans: "Estedad", "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  color-scheme: light;
+}
+html.dark {
+  --bg: #121416;  --surface: #1A1D20;  --bg-soft: #1F2326;  --plate: #E2DDD4;
+  --frame: #0C0E10;  --frame-ink: #F3F4F2;  --frame-ink-2: #A7ADB1;  --frame-line: #24292D;
+  --ink: #F1F3F0;  --ink-2: #B0B6BA;  --ink-3: #8B9297;  --ink-4: #5C6368;
+  --line: #2A2F33;  --line-2: #3B4146;  --line-input: #6B7378;  --line-strong: #F1F3F0;
+  --accent: #5FC8CE;  --accent-hover: #7AD4D9;  --accent-ink: #121416;  --accent-soft: #16292B;  --frame-accent: #5FC8CE;
+  --gilt: #D6BC8C;  --frame-gilt: #D6BC8C;
+  --ok: #7FBF8E; --ok-soft: #16281B;  --warn: #D8A85C; --warn-soft: #2C2214;  --danger: #E08A80; --danger-soft: #2E1D1A;
+  --plate-ink: #15181A; --plate-ink-2: #4F565B; --plate-chip: #FFFFFF;
+  --focus: var(--accent);
+  color-scheme: dark;
+}
+.plate, .frame { --focus: var(--plate-ink); }   /* context-scoped focus: inside a plate or on the frame */
+.frame { --focus: var(--frame-accent); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }

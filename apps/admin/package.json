@@ -1,0 +1,50 @@
+{
+  "name": "@namilux/admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --config ../../packages/config/eslint.config.js --max-warnings 0",
+    "test": "vitest run --passWithNoTests",
+    "create-owner": "tsx --env-file-if-exists=../../.env.local --env-file-if-exists=../../.env scripts/create-owner.ts"
+  },
+  "dependencies": {
+    "@namilux/config": "workspace:*",
+    "@namilux/core": "workspace:*",
+    "@namilux/db": "workspace:*",
+    "@namilux/integrations": "workspace:*",
+    "@namilux/tokens": "workspace:*",
+    "@radix-ui/react-dialog": "1.1.14",
+    "@radix-ui/react-dropdown-menu": "2.1.15",
+    "@radix-ui/react-popover": "1.1.14",
+    "@radix-ui/react-select": "2.2.5",
+    "@radix-ui/react-tabs": "1.1.12",
+    "@radix-ui/react-toast": "1.2.14",
+    "@radix-ui/react-tooltip": "1.2.7",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.525.0",
+    "next": "16.3.5",
+    "pino": "9.14.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1",
+    "tailwind-merge": "3.3.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "eslint": "9.39.5",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

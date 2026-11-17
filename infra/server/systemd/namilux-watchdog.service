@@ -1,0 +1,8 @@
+[Unit]
+Description=NAMILUX watchdog (probe web/admin/worker, restart after three misses, alert)
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=-/opt/namilux/.env
+ExecStart=/opt/namilux/bin/watchdog.sh

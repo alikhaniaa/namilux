@@ -1,0 +1,37 @@
+{
+  "name": "@namilux/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --config ../../packages/config/eslint.config.js --max-warnings 0",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@namilux/config": "workspace:*",
+    "@namilux/core": "workspace:*",
+    "@namilux/db": "workspace:*",
+    "@namilux/integrations": "workspace:*",
+    "@namilux/tokens": "workspace:*",
+    "next": "16.3.5",
+    "pino": "9.14.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "server-only": "0.0.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "eslint": "9.39.5",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

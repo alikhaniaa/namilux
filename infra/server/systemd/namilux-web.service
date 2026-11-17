@@ -1,0 +1,56 @@
+# The storefront: Next.js standalone server on loopback :3000, started from the release that
+# /opt/namilux/current points at (release.sh activate). Restarted by systemd on any exit, forever
+# (no start-rate limit; the delay between restarts grows to a minute), bounded in memory so a leak
+# cannot take the box down; probed by Caddy (/healthz/) and by namilux-watchdog.timer.
+[Unit]
+Description=NAMILUX storefront (Next.js standalone, :3000)
+After=network-online.target postgresql.service
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=namilux
+Group=namilux
+EnvironmentFile=/opt/namilux/.env
+UnsetEnvironment=DATABASE_URL_MIGRATE DATABASE_URL_ADMIN DATABASE_URL_WORKER
+Environment=NODE_ENV=production PORT=3000 HOSTNAME=127.0.0.1 NEXT_TELEMETRY_DISABLED=1
+Environment=NODE_OPTIONS=--max-old-space-size=1024 UV_THREADPOOL_SIZE=8
+Environment=MALLOC_ARENA_MAX=2 MEMORY_METRICS=1
+WorkingDirectory=/opt/namilux/current/apps/web/.next/standalone/apps/web
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=2
+RestartSteps=6
+RestartMaxDelaySec=60
+TimeoutStopSec=20
+KillSignal=SIGTERM
+LimitNOFILE=65536
+
+# memory: the V8 heap is capped above; these bound the whole unit (native memory included). Past
+# MemoryHigh the kernel reclaims this unit first; past MemoryMax only this unit is killed - and
+# restarted - instead of the kernel choosing a victim anywhere on the box.
+# 6 Sep 2026: at High=1200M the unit measured 1197 MB resident plus 733 MB swapped - the heap cap bounds
+# only V8's old space, while Buffers and cached payloads live outside it, so the line sat below the
+# working set and the kernel swapped the storefront's own pages. 1500/1800 fits a 4 GB box beside a
+# small instalment instance with about 1 GB to spare.
+MemoryHigh=1500M
+MemoryMax=1800M
+
+# hardening: no privilege escalation, read-only OS, private /tmp and devices
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+ReadOnlyPaths=/opt/namilux/.env
+
+[Install]
+WantedBy=multi-user.target

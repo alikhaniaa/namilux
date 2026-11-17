@@ -1,0 +1,131 @@
+#
+# provision.sh installs this one when SITE_HOST is an IP address and makes the certificate:
+#   openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 730 \
+#     -keyout /etc/caddy/ip.key -out /etc/caddy/ip.crt -subj "/CN=$IP" -addext "subjectAltName=IP:$IP"
+# Iran's HTTP filter resets plain-HTTP requests whose path contains "static/chunks", so even a test
+# box must serve everything over TLS (the browser accepts the self-signed certificate once).
+#
+# Ports: :443 the storefront · :8100 the admin.
+
+{
+	servers {
+		protocols h1 h2 h3
+		timeouts {
+			read_header 10s
+			read_body 30s
+			write 5m
+			idle 5m
+		}
+	}
+}
+
+(security) {
+	header {
+		-Server
+		-X-Powered-By
+	}
+}
+
+(upstream) {
+	header_up X-Forwarded-For {client_ip}
+	header_up X-Real-IP {client_ip}
+	header_up X-Forwarded-Proto {scheme}
+	header_up X-Forwarded-Host {host}
+}
+
+# Preserve explicit ports when forwarding an origin on a nonstandard port.
+(upstream_port) {
+	header_up X-Forwarded-For {client_ip}
+	header_up X-Real-IP {client_ip}
+	header_up X-Forwarded-Proto {scheme}
+	header_up X-Forwarded-Host {hostport}
+}
+
+:80 {
+	# Let's Encrypt HTTP-01 for the IP certificate (ip-cert.sh runs certbot standalone on :8085)
+	handle /.well-known/acme-challenge/* {
+		reverse_proxy 127.0.0.1:8085
+	}
+	handle {
+		redir https://{host}{uri} permanent
+	}
+}
+
+:443 {
+	tls /etc/caddy/ip.crt /etc/caddy/ip.key
+	encode zstd gzip
+	import security
+	# the largest legitimate storefront body is a few KB of JSON; anything bigger is refused at the edge
+	request_body {
+		max_size 1MB
+	}
+
+	@internal path /api/internal/*
+	handle @internal {
+		respond 404
+	}
+	handle_path /media/* {
+		root * /opt/namilux/media
+		header Cache-Control "public, max-age=31536000, immutable"
+		header X-Content-Type-Options nosniff
+		file_server
+	}
+	handle /sw.js {
+		header Cache-Control "no-cache, must-revalidate"
+		header Service-Worker-Allowed "/"
+		reverse_proxy 127.0.0.1:3000 {
+			import upstream
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3000 {
+			import upstream
+			health_uri /healthz/
+			health_headers {
+				Host {$SITE_HOST}
+				X-Forwarded-Host {$SITE_HOST}
+				X-Forwarded-Proto https
+			}
+			health_interval 15s
+		}
+	}
+	log {
+		output file /var/log/caddy/site.log {
+			roll_size 50mb
+			roll_keep 10
+		}
+		format json
+	}
+}
+
+:8100 {
+	tls /etc/caddy/ip.crt /etc/caddy/ip.key
+	encode zstd gzip
+	import security
+	# media uploads (25 MB app cap) plus multipart overhead
+	request_body {
+		max_size 30MB
+	}
+	@blocked not client_ip {$ADMIN_ALLOWED_CIDRS:0.0.0.0/0 ::/0}
+	handle @blocked {
+		respond 404
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3100 {
+			import upstream
+			health_uri /healthz
+			health_headers {
+				X-Forwarded-Proto https
+			}
+			health_interval 15s
+		}
+	}
+	header X-Robots-Tag "noindex, nofollow"
+	log {
+		output file /var/log/caddy/admin.log {
+			roll_size 20mb
+			roll_keep 10
+		}
+		format json
+	}
+}

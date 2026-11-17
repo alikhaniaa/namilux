@@ -1,0 +1,11 @@
+[Unit]
+Description=NAMILUX nightly backup (database + media)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/opt/namilux/.env
+ExecStart=/opt/namilux/bin/backup.sh
+Nice=10
+IOSchedulingClass=idle

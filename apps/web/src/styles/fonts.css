@@ -1,0 +1,18 @@
+/*
+ * Measured on the vendored files, 25 Aug 2026 (packages/tokens/fonts/README.md §Measured metrics):
+ *   Estedad    upm 1000  ascender 1025  descender −500  lineGap 0  xAvgCharWidth 602
+ *   Vazirmatn  upm 2048  ascender 2100  descender −1100 lineGap 0  xAvgCharWidth 1159
+ *   size-adjust = 0.602 / 0.5659 = 106.38%   ascent = 1.025 / 1.0638 = 96.36%
+ *   descent     = 0.500 / 1.0638 = 47.00%    line-gap = 0%
+ */
+@font-face {
+  font-family: "Vazirmatn Fallback";
+  src: url("/fonts/Vazirmatn-VF.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  size-adjust: 106.38%;
+  ascent-override: 96.36%;
+  descent-override: 47%;
+  line-gap-override: 0%;
+}

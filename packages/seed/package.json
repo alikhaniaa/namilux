@@ -1,0 +1,47 @@
+{
+  "name": "@namilux/seed",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-time legacy import (data/extract → Postgres) and media pipeline; never runs in production",
+  "exports": {
+    "./images/normalize": "./src/images/normalize.ts",
+    "./images/renditions": "./src/images/renditions.ts",
+    "./images/lqip": "./src/images/lqip.ts",
+    "./images/manifest": "./src/images/manifest.ts",
+    "./images/og-card": "./src/images/og-card.ts",
+    "./images/quarantine": "./src/images/quarantine.ts"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=../../.env.local --import tsx src/cli.ts seed --dry --limit=20",
+    "build": "tsc -p tsconfig.json --noEmit",
+    "start": "node --env-file-if-exists=../../.env.local --import tsx src/cli.ts seed",
+    "seed": "node --env-file-if-exists=../../.env.local --import tsx src/cli.ts seed",
+    "seed:dry": "node --env-file-if-exists=../../.env.local --import tsx src/cli.ts seed --dry",
+    "seed:media": "node --env-file-if-exists=../../.env.local --import tsx src/cli.ts seed --only=media",
+    "seed:orders": "node --env-file-if-exists=../../.env.local --import tsx src/legacy-orders.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@namilux/config": "workspace:*",
+    "@namilux/core": "workspace:*",
+    "@namilux/db": "workspace:*",
+    "@namilux/tokens": "workspace:*",
+    "csv-parse": "7.0.2",
+    "pino": "9.14.0",
+    "sharp": "0.35.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "eslint": "9.39.5",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

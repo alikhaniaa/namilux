@@ -1,0 +1,5 @@
+settings.psd1
+*.age
+*.partial
+*.failed.json
+backup-key*.txt

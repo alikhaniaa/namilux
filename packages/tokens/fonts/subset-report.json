@@ -1,0 +1,28 @@
+{
+  "builtAt": "2026-08-25T17:02:32.365Z",
+  "tool": "fonttools unknown",
+  "ranges": "U+0020-007E,U+00A0-00BF,U+00D7,U+00F7,U+0600-06FF,U+200B-200F,U+2010-2027,U+2030-203A,U+2212,U+FDFC,U+FE70-FEFF",
+  "files": [
+    {
+      "name": "Estedad-VF.woff2",
+      "bytes": 58112,
+      "sha256": "28c9356938a769fc230e83a06d5e85620c94fa5c4c9794e3dcaa93263e31fd81",
+      "budget": 112640,
+      "coverage": {
+        "U+200C": true,
+        "U+06F0-06F9": true
+      }
+    },
+    {
+      "name": "Vazirmatn-VF.woff2",
+      "bytes": 54704,
+      "sha256": "c03b969ab01a1360146222d639e377341582e4fc20455ed6f9463e2fb68f5b4b",
+      "budget": 61440,
+      "coverage": {
+        "U+200C": true,
+        "U+06F0-06F9": true
+      }
+    }
+  ],
+  "failed": false
+}

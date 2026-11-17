@@ -1,0 +1,30 @@
+{
+  "name": "namilux",
+  "private": true,
+  "version": "1.0.0",
+  "description": "NAMILUX — luxury home-appliance storefront and back-office for namilux.ir",
+  "packageManager": "pnpm@10.15.0",
+  "engines": { "node": ">=24.0.0", "pnpm": ">=10" },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter ./apps/* dev",
+    "build": "pnpm -r --filter ./packages/* build && pnpm -r --filter ./apps/* build",
+    "start": "pnpm -r --parallel --filter ./apps/* start",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r --filter ./packages/* --filter ./apps/* test",
+    "e2e": "pnpm --filter @namilux/tests e2e",
+    "db:migrate": "pnpm --filter @namilux/db migrate",
+    "db:generate": "pnpm --filter @namilux/db generate",
+    "db:seed": "pnpm --filter @namilux/seed run seed",
+    "db:roles": "pnpm --filter @namilux/db roles",
+    "admin:create-owner": "pnpm --filter @namilux/admin create-owner",
+    "check:contract": "pnpm --filter @namilux/tests check:contract",
+    "check:contrast": "node packages/tokens/contrast-check.mjs",
+    "check:forbidden": "node tests/tools/forbidden-patterns.mjs",
+    "seo:crawl": "pnpm --filter @namilux/tests seo:crawl",
+    "check": "pnpm typecheck && pnpm lint && pnpm check:forbidden && pnpm test && pnpm check:contrast && pnpm check:contract"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
+  }
+}

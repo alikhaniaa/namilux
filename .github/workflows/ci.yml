@@ -1,0 +1,49 @@
+name: ci
+# Manual trigger only in this published copy: several suites read data/extract (a crawl of the old site), which is not published.
+on: { workflow_dispatch: {} }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_DB: namilux_test, POSTGRES_USER: nl_migrate, POSTGRES_PASSWORD: nl_migrate }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U nl_migrate" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL_TEST: postgres://nl_migrate:nl_migrate@localhost:5432/namilux_test
+      DATABASE_URL_MIGRATE: postgres://nl_migrate:nl_migrate@localhost:5432/namilux_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm check:forbidden
+      - run: pnpm test
+      - run: pnpm check:contrast
+      - run: pnpm db:migrate && pnpm db:roles
+      - run: pnpm check:contract
+      # the spec - the security suite (CSP snapshots, CSRF, rate limits, OTP abuse, price tampering,
+      # callback forgery, RBAC matrix, polyglot upload, XSS fields) and the 752-URL contract tests.
+      - run: pnpm --filter @namilux/tests test
+      - run: pnpm audit --prod --audit-level=high
+      - run: pnpm build
+      # infra: every shell script in the server kit must at least parse (bash -n) and pass shellcheck.
+      - run: |
+          for f in infra/server/*.sh; do bash -n "$f"; done
+          sudo apt-get install -y -qq shellcheck >/dev/null && shellcheck -S warning infra/server/*.sh
+  e2e:
+    if: contains(github.event.pull_request.labels.*.name, 'e2e')
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @namilux/tests exec playwright install --with-deps chromium
+      - run: pnpm e2e

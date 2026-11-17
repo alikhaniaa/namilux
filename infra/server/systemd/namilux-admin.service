@@ -1,0 +1,46 @@
+# The back-office: Next.js standalone server on loopback :3100 (Caddy's admin hostname in front,
+# with the IP allow-list). Same restart and memory policy as the storefront.
+[Unit]
+Description=NAMILUX admin (Next.js standalone, :3100)
+After=network-online.target postgresql.service
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=namilux
+Group=namilux
+EnvironmentFile=/opt/namilux/.env
+UnsetEnvironment=DATABASE_URL_MIGRATE DATABASE_URL_WEB DATABASE_URL_WORKER
+Environment=NODE_ENV=production PORT=3100 HOSTNAME=127.0.0.1 NEXT_TELEMETRY_DISABLED=1
+Environment=NODE_OPTIONS=--max-old-space-size=768
+Environment=MALLOC_ARENA_MAX=2 MEMORY_METRICS=1
+WorkingDirectory=/opt/namilux/current/apps/admin/.next/standalone/apps/admin
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=2
+RestartSteps=6
+RestartMaxDelaySec=60
+TimeoutStopSec=20
+KillSignal=SIGTERM
+LimitNOFILE=65536
+
+MemoryHigh=850M
+MemoryMax=1100M
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+ReadOnlyPaths=/opt/namilux/.env
+
+[Install]
+WantedBy=multi-user.target

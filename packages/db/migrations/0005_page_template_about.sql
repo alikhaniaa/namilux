@@ -1,0 +1,19 @@
+-- 0005_page_template_about - «دربارهٔ ما» gets a template of its own.
+--   `/about-us/` is one of the 752 legacy URLs (url-inventory-and-redirect-map.csv row 154,
+--   action KEEP, 200) and has always been a `pages` row; until now it carried `template =
+--   'default'`, which renders the prose and nothing else. The About page also has to show the
+--   houses the shop carries, the promises, and a compact "come and see us" block - structure that
+--   belongs in a template component, not in an admin's HTML.
+--
+--   Why a NEW enum value rather than a reuse: `contact` and `store` are SINGLETON templates
+--   (core/content/pages.SINGLETON_TEMPLATES - only one published page each) and are already taken
+--   by `/contact-us/` and `/store/`, so pointing About at either would make it a CONFLICT the
+--   moment it published, and would also make the three pages compete for the same search intent.
+--
+--   ADD VALUE only. The value cannot be USED in the transaction that adds it (Postgres ≥ 12), so
+--   the row that switches `about-us` over to it is a separate statement run after this migration
+--   commits - see docs/ and the release notes; the page renders through `PageBody` until then,
+--   which is why an existing database is never left with a broken page.
+--
+-- DEPENDS ON  0001_init (type page_template)
+ALTER TYPE "public"."page_template" ADD VALUE IF NOT EXISTS 'about';

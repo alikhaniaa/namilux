@@ -1,0 +1,47 @@
+# The job worker (SMS, media renditions, revalidation, rollups, expiries). One instance per server - 
+# never two schedulers. Health on loopback :3200/healthz. Writes the media directory. Image work
+# (sharp) allocates outside the V8 heap, so the unit ceiling is well above the heap cap.
+[Unit]
+Description=NAMILUX worker (jobs, scheduler, :3200 health)
+After=network-online.target postgresql.service
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=namilux
+Group=namilux
+EnvironmentFile=/opt/namilux/.env
+UnsetEnvironment=DATABASE_URL_MIGRATE DATABASE_URL_WEB DATABASE_URL_ADMIN
+Environment=NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
+Environment=NODE_OPTIONS=--max-old-space-size=768
+Environment=MALLOC_ARENA_MAX=2
+WorkingDirectory=/opt/namilux/current/apps/worker
+ExecStart=/usr/bin/node --import tsx src/index.ts
+Restart=always
+RestartSec=3
+RestartSteps=6
+RestartMaxDelaySec=60
+TimeoutStopSec=75
+KillSignal=SIGTERM
+LimitNOFILE=65536
+
+MemoryHigh=900M
+MemoryMax=1200M
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+ReadOnlyPaths=/opt/namilux/.env
+
+[Install]
+WantedBy=multi-user.target

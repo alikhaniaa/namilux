@@ -1,0 +1,54 @@
+{
+  "name": "@namilux/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NAMILUX Postgres 16 schema (Drizzle), SQL migrations, DB roles and per-role clients",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./schema": {
+      "types": "./src/schema/index.ts",
+      "default": "./src/schema/index.ts"
+    },
+    "./test": {
+      "types": "./src/test/helper.ts",
+      "default": "./src/test/helper.ts"
+    }
+  },
+  "files": [
+    "src",
+    "migrations",
+    "roles.sql"
+  ],
+  "scripts": {
+    "dev": "tsc -p tsconfig.json --noEmit --watch --preserveWatchOutput",
+    "build": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate": "drizzle-kit generate",
+    "generate:custom": "drizzle-kit generate --custom",
+    "check": "drizzle-kit check",
+    "migrate": "node --env-file-if-exists=../../.env.local --import tsx scripts/migrate.ts",
+    "roles": "node --env-file-if-exists=../../.env.local --import tsx scripts/roles.ts",
+    "studio": "node --env-file-if-exists=../../.env.local ./node_modules/drizzle-kit/bin.cjs studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.2",
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {
+    "@namilux/config": "workspace:*",
+    "@types/node": "24.13.3",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.5",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

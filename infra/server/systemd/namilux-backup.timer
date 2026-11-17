@@ -1,0 +1,11 @@
+[Unit]
+Description=NAMILUX nightly backup at 03:30 Tehran
+
+[Timer]
+OnCalendar=*-*-* 00:00:00 UTC
+RandomizedDelaySec=300
+Persistent=true
+Unit=namilux-backup.service
+
+[Install]
+WantedBy=timers.target

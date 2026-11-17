@@ -1,0 +1,32 @@
+{
+  "name": "@namilux/tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "check:contract": "tsx contract/check-contract.ts",
+    "seo:crawl": "tsx contract/parity-crawl.ts",
+    "test": "vitest run contract security",
+    "lhci": "lhci autorun --config=lighthouse/lhci.config.cjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@namilux/config": "workspace:*",
+    "@namilux/core": "workspace:*",
+    "@namilux/db": "workspace:*",
+    "@namilux/integrations": "workspace:*",
+    "csv-parse": "7.0.2"
+  },
+  "devDependencies": {
+    "@lhci/cli": "0.15.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "24.13.3",
+    "eslint": "9.39.5",
+    "tsx": "4.23.12",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

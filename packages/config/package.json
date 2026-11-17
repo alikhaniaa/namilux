@@ -1,0 +1,54 @@
+{
+  "name": "@namilux/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared tsconfig, eslint (flat config with the forbidden-pattern rules), prettier and the typed env schema for every NAMILUX package",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./env": "./src/env.ts",
+    "./client-ip": "./src/client-ip.ts",
+    "./internal-target": "./src/internal-target.ts",
+    "./runtime-metrics": "./src/runtime-metrics.ts",
+    "./eslint": "./eslint/index.js",
+    "./eslint/rules": "./eslint/rules/index.js",
+    "./prettier": "./prettier.config.js",
+    "./tsconfig/*.json": "./tsconfig/*.json"
+  },
+  "files": [
+    "src",
+    "eslint",
+    "tsconfig",
+    "prettier.config.js",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "24.13.3",
+    "eslint": "9.39.5",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "16.5.0",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.68.0",
+    "vitest": "3.2.7"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.37.0",
+    "typescript": ">=5.9.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}
